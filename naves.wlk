@@ -1,6 +1,29 @@
-class NaveDeCarga {
+class Nave{
+	var property velocidad = 0
+	method propulsar() {
+	  self.aumentarVelocidad(20000)
+	}
 
-	var velocidad = 0
+	method aumentarVelocidad(cantidad) {
+	  velocidad = (velocidad+cantidad).min(300000)
+	}
+	
+
+	method preparar(){
+		self.aumentarVelocidad(15000)
+	}
+
+	method recibirAmenaza()	//abstract method
+
+	method encuentroEnemigo(){ // template method
+		self.recibirAmenaza()
+		self.propulsar()
+	}
+
+}
+
+class NaveDeCarga inherits Nave{
+
 	var property carga = 0
 
 	method sobrecargada() = carga > 100000
@@ -13,9 +36,8 @@ class NaveDeCarga {
 
 }
 
-class NaveDePasajeros {
+class NaveDePasajeros inherits Nave{
 
-	var velocidad = 0
 	var property alarma = false
 	const cantidadDePasajeros = 0
 
@@ -31,8 +53,8 @@ class NaveDePasajeros {
 
 }
 
-class NaveDeCombate {
-	var property velocidad = 0
+class NaveDeCombate inherits Nave{
+	
 	var property modo = reposo
 	const property mensajesEmitidos = []
 
@@ -48,6 +70,29 @@ class NaveDeCombate {
 		modo.recibirAmenaza(self)
 	}
 
+	override method preparar(){
+		super()
+		modo.preparar(self)
+	}
+
+}
+
+class NaveResiduosRadiactivos inherits NaveDeCarga {
+	var property estaSellado = false
+
+	method sellarAlVacio(){
+		estaSellado  = true
+	}
+
+	override method recibirAmenaza(){
+		self.sellarAlVacio()		// si se le pone super ejecuta el resivir amenaza de NaveDeCarga
+		velocidad = 0
+	}
+
+	override method preparar(){
+		super()
+		self.sellarAlVacio()
+	}
 }
 
 object reposo {
@@ -58,6 +103,11 @@ object reposo {
 		nave.emitirMensaje("¡RETIRADA!")
 	}
 
+	method preparar(nave){
+		nave.modo(ataque)
+		nave.emitarMensaje("Saliendo en mision")
+	}
+
 }
 
 object ataque {
@@ -66,6 +116,11 @@ object ataque {
 
 	method recibirAmenaza(nave) {
 		nave.emitirMensaje("Enemigo encontrado")
+	}
+
+	
+	method preparar(nave){
+		nave.emitirMensaje("Volviendo a la base")
 	}
 
 }
